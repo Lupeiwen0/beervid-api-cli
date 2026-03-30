@@ -24,7 +24,12 @@ jobs:
       - name: Set version from tag
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          npm version "$VERSION" --no-git-tag-version
+          CURRENT_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$CURRENT_VERSION" != "$VERSION" ]; then
+            npm version "$VERSION" --no-git-tag-version
+          else
+            echo "package.json version already $VERSION; skipping npm version"
+          fi
 
       - run: npm run build
 
