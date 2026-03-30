@@ -4,6 +4,14 @@
   "description": "BeerVid Open API CLI & SDK",
   "type": "module",
   "engines": { "node": ">=22.0.0" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lupeiwen0/beervid-api-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/Lupeiwen0/beervid-api-cli/issues"
+  },
+  "homepage": "https://github.com/Lupeiwen0/beervid-api-cli#readme",
   "bin": { "beervid-api": "dist/cli.mjs" },
   "types": "dist/index.d.ts",
   "exports": {
