@@ -1,0 +1,19 @@
+{
+  "name": "beervid-api-cli",
+  "version": "0.1.0",
+  "description": "BeerVid 开放 API CLI & SDK - 视频生成、发布策略、TikTok 账号管理、数据分析。TRIGGER: 当用户提到 BeerVid 开放 API、视频生成任务、发布策略管理、TikTok 视频管理、视频数据分析时触发。",
+  "author": "BeerVid",
+  "license": "MIT",
+  "main": "SKILL.md",
+  "files": ["SKILL.md", "references/"],
+  "dependencies": {
+    "beervid-api-cli": "^0.1.0"
+  },
+  "skillMetadata": {
+    "category": "api-integration",
+    "platform": "beervid",
+    "apiVersion": "v1",
+    "requiresAuth": true,
+    "authType": "api-key"
+  }
+}
