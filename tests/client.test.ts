@@ -32,8 +32,43 @@ describe('client', () => {
     expect(result).toEqual({ total: 10 })
   })
 
+  it('treats code 0 as a successful API response', async () => {
+    const mockResponse = {
+      code: 0,
+      message: 'success',
+      data: { status: 'ok', username: 'tester', message: 'Authorized' },
+    }
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(mockResponse)))
+
+    const { checkAuth } = await import('../src/client/index.js')
+    const result = await checkAuth()
+    expect(result).toEqual({ status: 'ok', username: 'tester', message: 'Authorized' })
+  })
+
+  it('treats success=true as a successful API response', async () => {
+    const mockResponse = {
+      code: 201,
+      message: 'success',
+      success: true,
+      data: { userId: '123' },
+    }
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(mockResponse)))
+
+    const { apiGet } = await import('../src/client/index.js')
+    const result = await apiGet<{ userId: string }>('/api/v1/beervid/profile')
+    expect(result).toEqual({ userId: '123' })
+  })
+
   it('throws ApiError when code !== 200', async () => {
     const mockResponse = { code: 401, message: 'Unauthorized' }
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(mockResponse)))
+
+    const { apiGet } = await import('../src/client/index.js')
+    await expect(apiGet('/api/v1/beervid/profile')).rejects.toThrow('Unauthorized')
+  })
+
+  it('prefers explicit error=true over a success code', async () => {
+    const mockResponse = { code: 200, message: 'Unauthorized', error: true }
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(mockResponse)))
 
     const { apiGet } = await import('../src/client/index.js')

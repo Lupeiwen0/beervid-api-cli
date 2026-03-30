@@ -1,5 +1,6 @@
 import type { Command } from 'commander'
 import { publishVideo, printResult } from '../../client/index.js'
+import { CliCommandError, handleCommandError } from '../../command-error.js'
 import { log } from '../../logger.js'
 
 export function register(cmd: Command): void {
@@ -14,8 +15,7 @@ export function register(cmd: Command): void {
     .action(async (opts: { videoId: string; businessId: string; productAnchor?: boolean; productId?: string; productAnchorTitle?: string }) => {
       try {
         if (opts.productAnchor && !opts.productId) {
-          log.error('--product-id is required when using --product-anchor')
-          process.exit(1)
+          throw new CliCommandError('--product-id is required when using --product-anchor', { source: 'ValidationError' })
         }
         log.info('Publishing video...')
         const result = await publishVideo({
@@ -31,8 +31,7 @@ export function register(cmd: Command): void {
         })
         printResult(result)
       } catch (err) {
-        log.error(String(err))
-        process.exit(1)
+        handleCommandError(err)
       }
     })
 }

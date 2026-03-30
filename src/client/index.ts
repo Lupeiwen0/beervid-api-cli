@@ -39,6 +39,12 @@ export class ApiError extends Error {
 
 // ─── Response handling ────────────────────────────────────────────────
 
+function isSuccessResponse<T>(json: OpenApiResponse<T>): boolean {
+  if (json.error === true) return false
+  if (json.success === true) return true
+  return json.code === 200 || json.code === 0
+}
+
 async function handleResponse<T>(res: Response, path: string): Promise<T> {
   if (res.status >= 500) {
     throw new Error(`HTTP ${res.status} — ${path}`)
@@ -49,7 +55,7 @@ async function handleResponse<T>(res: Response, path: string): Promise<T> {
   } catch {
     throw new Error(`HTTP ${res.status} — unexpected response from ${path}`)
   }
-  if (json.code !== 200) {
+  if (!isSuccessResponse(json)) {
     throw new ApiError(json.code, json.message ?? `API error (code: ${json.code})`)
   }
   return json.data

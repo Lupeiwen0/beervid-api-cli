@@ -1,5 +1,6 @@
 import type { Command } from 'commander'
 import { listTemplates, printResult } from '../../client/index.js'
+import { handleCommandError } from '../../command-error.js'
 import { log } from '../../logger.js'
 
 export function register(cmd: Command): void {
@@ -12,8 +13,7 @@ export function register(cmd: Command): void {
         const result = await listTemplates()
         printResult(result)
       } catch (err) {
-        log.error(String(err))
-        process.exit(1)
+        handleCommandError(err)
       }
     })
 }

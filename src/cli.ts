@@ -1,8 +1,9 @@
 declare const __PKG_VERSION__: string
 
-import { program } from 'commander'
+import { CommanderError, program } from 'commander'
 import { setQuiet } from './logger.js'
 import { setPretty } from './client/index.js'
+import { handleCommandError } from './command-error.js'
 import { registerAuthCommands } from './commands/auth/index.js'
 import { registerVideoCommands } from './commands/video/index.js'
 import { registerStrategyCommands } from './commands/strategy/index.js'
@@ -18,6 +19,7 @@ program
   .name('beervid-api')
   .version(typeof __PKG_VERSION__ !== 'undefined' ? __PKG_VERSION__ : '0.0.0')
   .description('BeerVid Open API CLI & SDK')
+  .exitOverride()
   .option('-q, --quiet', 'Suppress progress logs')
   .option('--pretty', 'Pretty-print JSON output')
   .hook('preAction', () => {
@@ -36,4 +38,11 @@ registerRecordCommands(program)
 registerAnalyticsCommands(program)
 registerConfigCommand(program)
 
-program.parse()
+try {
+  await program.parseAsync()
+} catch (err) {
+  if (err instanceof CommanderError && err.exitCode === 0) {
+    process.exit(0)
+  }
+  handleCommandError(err)
+}

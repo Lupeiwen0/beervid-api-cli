@@ -1,5 +1,6 @@
 import type { Command } from 'commander'
 import { listVideoLibrary, printResult } from '../../client/index.js'
+import { handleCommandError } from '../../command-error.js'
 import { log } from '../../logger.js'
 import type { SourceType, TaskMode } from '../../types/index.js'
 
@@ -24,8 +25,7 @@ export function register(cmd: Command): void {
         })
         printResult(result)
       } catch (err) {
-        log.error(String(err))
-        process.exit(1)
+        handleCommandError(err)
       }
     })
 }

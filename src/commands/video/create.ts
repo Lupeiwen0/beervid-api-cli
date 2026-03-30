@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import type { Command } from 'commander'
 import { createVideo, printResult } from '../../client/index.js'
+import { CliCommandError, handleCommandError } from '../../command-error.js'
 import { log } from '../../logger.js'
 import type { VideoCreateParams } from '../../types/index.js'
 
@@ -26,16 +27,17 @@ export function register(cmd: Command): void {
     .action(async (opts: { json?: string; techType?: string; videoScale?: string; language?: string; name?: string }) => {
       try {
         if (!opts.json) {
-          log.error('video create requires --json <params>. Use --json with JSON string, file path, or - for stdin.')
-          process.exit(1)
+          throw new CliCommandError(
+            'video create requires --json <params>. Use --json with JSON string, file path, or - for stdin.',
+            { source: 'ValidationError' },
+          )
         }
         const params: VideoCreateParams = parseJsonInput(opts.json)
         log.info('Creating video task...')
         const result = await createVideo(params)
         printResult(result)
       } catch (err) {
-        log.error(String(err))
-        process.exit(1)
+        handleCommandError(err)
       }
     })
 }

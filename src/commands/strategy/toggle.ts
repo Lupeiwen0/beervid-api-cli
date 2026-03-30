@@ -1,5 +1,6 @@
 import type { Command } from 'commander'
 import { toggleStrategy, printResult } from '../../client/index.js'
+import { CliCommandError, handleCommandError } from '../../command-error.js'
 import { log } from '../../logger.js'
 
 export function register(cmd: Command): void {
@@ -11,20 +12,17 @@ export function register(cmd: Command): void {
     .action(async (id: string, opts: { enable?: boolean; disable?: boolean }) => {
       try {
         if (opts.enable && opts.disable) {
-          log.error('Cannot use both --enable and --disable')
-          process.exit(1)
+          throw new CliCommandError('Cannot use both --enable and --disable', { source: 'ValidationError' })
         }
         if (!opts.enable && !opts.disable) {
-          log.error('Either --enable or --disable must be specified')
-          process.exit(1)
+          throw new CliCommandError('Either --enable or --disable must be specified', { source: 'ValidationError' })
         }
         const enable = !!opts.enable
         log.info(`${enable ? 'Enabling' : 'Disabling'} strategy: ${id}`)
         const result = await toggleStrategy(id, enable)
         printResult(result)
       } catch (err) {
-        log.error(String(err))
-        process.exit(1)
+        handleCommandError(err)
       }
     })
 }

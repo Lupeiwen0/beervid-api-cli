@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { execSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 
 describe('CLI', () => {
   const run = (args: string) => execSync(`npx tsx src/cli.ts ${args}`, { encoding: 'utf-8' })
+  const runResult = (args: string) => spawnSync('zsh', ['-lc', `npx tsx src/cli.ts ${args}`], { encoding: 'utf-8' })
 
   it('shows help with all command groups', () => {
     const output = run('--help')
@@ -47,5 +49,19 @@ describe('CLI', () => {
     expect(output).toContain('detail')
     expect(output).toContain('toggle')
     expect(output).toContain('delete')
+  })
+
+  it('validation failures expose error source information', () => {
+    const result = runResult('video create')
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('[ERROR] Source: ValidationError')
+    expect(result.stderr).toContain('[ERROR] Message: video create requires --json <params>.')
+  })
+
+  it('commander argument errors expose their source information', () => {
+    const result = runResult('product list')
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('[ERROR] Source: CommanderError')
+    expect(result.stderr).toContain('required option')
   })
 })
