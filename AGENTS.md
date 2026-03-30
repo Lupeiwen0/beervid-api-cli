@@ -32,7 +32,7 @@
   TypeScript 编译配置。
 
 - `tsup.config.ts`
-  打包配置。把 `src/cli.ts` 和 `src/index.ts` 打包到 `dist/`，输出 ESM 和类型声明，并在 CLI 文件上添加 shebang。
+  打包配置。分别打包 `src/cli.ts` 和 `src/index.ts` 到 `dist/`，输出 ESM 和类型声明，仅在 CLI 产物上添加 shebang。
 
 - `vitest.config.ts`
   测试配置，使用 Node 环境。
@@ -259,13 +259,13 @@ SDK 公共导出层。
 
 这是随 npm 包一起分发的技能文档，不属于 CLI 运行时代码。
 
-- `skills/SKILL.md`
+- `skills/beervid-api-cli/SKILL.md`
   BeerVid 场景说明、命令导航和典型工作流。
 
-- `skills/references/*.md`
+- `skills/beervid-api-cli/references/*.md`
   各命令组的细化参考文档。
 
-- `skills/skill.json`
+- `skills/beervid-api-cli/skill.json`
   技能元数据。
 
 如果修改 CLI 能力或参数，通常需要同步更新这里的文档。

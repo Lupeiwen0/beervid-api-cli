@@ -14,6 +14,14 @@ Or use directly:
 npx beervid-api-cli --help
 ```
 
+## Install as a Skill
+
+To install the bundled BeerVid skill with `skills`, run:
+
+```bash
+npx skills add Lupeiwen0/beervid-api-cli
+```
+
 ## Quick Start
 
 ```bash
