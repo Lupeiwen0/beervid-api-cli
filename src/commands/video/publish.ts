@@ -13,6 +13,10 @@ export function register(cmd: Command): void {
     .option('--product-anchor-title <title>', 'Product anchor title')
     .action(async (opts: { videoId: string; businessId: string; productAnchor?: boolean; productId?: string; productAnchorTitle?: string }) => {
       try {
+        if (opts.productAnchor && !opts.productId) {
+          log.error('--product-id is required when using --product-anchor')
+          process.exit(1)
+        }
         log.info('Publishing video...')
         const result = await publishVideo({
           videoId: opts.videoId,

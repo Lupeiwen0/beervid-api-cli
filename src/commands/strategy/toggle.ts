@@ -10,6 +10,10 @@ export function register(cmd: Command): void {
     .option('--disable', 'Disable the strategy')
     .action(async (id: string, opts: { enable?: boolean; disable?: boolean }) => {
       try {
+        if (opts.enable && opts.disable) {
+          log.error('Cannot use both --enable and --disable')
+          process.exit(1)
+        }
         if (!opts.enable && !opts.disable) {
           log.error('Either --enable or --disable must be specified')
           process.exit(1)

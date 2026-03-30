@@ -6,14 +6,12 @@ import type { StrategyCreateParams } from '../../types/index.js'
 
 function parseJsonInput(input: string): StrategyCreateParams {
   if (input === '-') {
-    const stdin = readFileSync(0, 'utf-8')
-    return JSON.parse(stdin) as StrategyCreateParams
+    return JSON.parse(readFileSync(0, 'utf-8')) as StrategyCreateParams
   }
-  try {
+  if (input.startsWith('{') || input.startsWith('[')) {
     return JSON.parse(input) as StrategyCreateParams
-  } catch {
-    return JSON.parse(readFileSync(input, 'utf-8')) as StrategyCreateParams
   }
+  return JSON.parse(readFileSync(input, 'utf-8')) as StrategyCreateParams
 }
 
 export function register(cmd: Command): void {

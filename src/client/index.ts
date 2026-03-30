@@ -17,10 +17,9 @@ import type {
 export function getApiKey(): string {
   const key = process.env['BEERVID_API_KEY'] || loadConfig().API_KEY
   if (!key) {
-    console.error('Error: API_KEY not set. Use one of:')
-    console.error('  1. beervid-api config set API_KEY <your-key>')
-    console.error('  2. export BEERVID_API_KEY=<your-key>')
-    process.exit(1)
+    throw new Error(
+      'API_KEY not set. Use: beervid-api config set API_KEY <key> or export BEERVID_API_KEY=<key>'
+    )
   }
   return key
 }
@@ -44,7 +43,12 @@ async function handleResponse<T>(res: Response, path: string): Promise<T> {
   if (res.status >= 500) {
     throw new Error(`HTTP ${res.status} — ${path}`)
   }
-  const json = (await res.json()) as OpenApiResponse<T>
+  let json: OpenApiResponse<T>
+  try {
+    json = (await res.json()) as OpenApiResponse<T>
+  } catch {
+    throw new Error(`HTTP ${res.status} — unexpected response from ${path}`)
+  }
   if (json.code !== 200) {
     throw new ApiError(json.code, json.message ?? `API error (code: ${json.code})`)
   }
