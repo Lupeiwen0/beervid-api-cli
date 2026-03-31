@@ -18,8 +18,9 @@ beervid-api record list [options]
 | `--size <size>` | number | — | Page size |
 | `--strategy-id <id>` | string | — | Filter by strategy ID |
 | `--business-id <id>` | string | — | Filter by business ID |
-| `--status <status>` | number | — | Filter by status (0-3) |
-| `--sort <field>` | string | — | Sort field |
+| `--status <status>` | number | — | `0`=publishing, `1`=create failed, `2`=publish failed, `3`=success |
+| `--work-type <type>` | string | — | `SHORT_VIDEO` or `IMAGE_TEXT` |
+| `--sort <field>` | string | — | `published_at`, `created_at`, or `updated_at` |
 | `--order <order>` | string | — | `asc` or `desc` |
 | `--start-time <time>` | string | — | Start time filter (ISO 8601) |
 | `--end-time <time>` | string | — | End time filter (ISO 8601) |
@@ -27,7 +28,7 @@ beervid-api record list [options]
 **Example:**
 
 ```bash
-beervid-api record list --status 1 --current 1 --size 10
+beervid-api record list --status 3 --current 1 --size 10
 beervid-api record list --strategy-id strat_q1w2e3r4 --start-time 2025-06-01T00:00:00Z --end-time 2025-06-30T23:59:59Z
 ```
 
@@ -46,8 +47,8 @@ beervid-api record list --strategy-id strat_q1w2e3r4 --start-time 2025-06-01T00:
       "coverUrl": "https://cdn.beervid.ai/covers/vid_a1b2c3d4e5f6.jpg",
       "businessId": "biz_x9y8z7",
       "businessName": "My TikTok Store",
-      "workType": "AUTO",
-      "status": 1,
+      "workType": "SHORT_VIDEO",
+      "status": 3,
       "publishedAt": "2025-06-15T09:30:00Z",
       "errorMessage": null
     }
