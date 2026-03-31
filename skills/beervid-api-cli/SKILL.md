@@ -95,9 +95,22 @@ const accounts = await listAccounts({ shoppableType: 'ALL' })
 
 | 参数 | 可选值 |
 |------|--------|
-| techType | `sora`, `veo`, `sora_azure`, `sora_h_pro`, `sora_aio` |
+| techType | `sora`, `veo`, `sora_azure`, `sora_h_pro` (`sora_aio` deprecated) |
 | videoScale | `16:9` (仅 veo), `9:16` |
 | status (任务) | `0` 失败, `1` 成功, `2` 生成中 |
 | status (发布) | `0` 发布中, `1` 创建失败, `2` 发布失败, `3` 成功 |
 | shoppableType | `TT`, `TTS`, `ALL` |
 | strategyType | `TEMPLATE`, `VIDEO` |
+
+## 最佳实践与示例
+
+完整的命令示例、JSON 入参格式、必填/可选参数标注、常见工作流 → [examples/best-practices.md](examples/best-practices.md)
+
+### 端到端流程指南
+
+| 流程 | 说明 | 参考文档 |
+|------|------|----------|
+| 视频生成流程 | 创建任务 → 轮询状态 → 获取结果 | [examples/video-generation-workflow.md](examples/video-generation-workflow.md) |
+| 视频发布流程 | 账号选择 → 策略创建 → 启用 → 监控记录 | [examples/video-publishing-workflow.md](examples/video-publishing-workflow.md) |
+
+构建复杂命令（如 `video create --json`、`strategy create --json`）时优先参考这些文件。

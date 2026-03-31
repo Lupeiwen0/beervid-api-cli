@@ -16,30 +16,80 @@ beervid-api video create --tech-type <type> --video-scale <scale> --language <la
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
 | `--json <json>` | string | No | JSON params string, file path, or `-` for stdin |
-| `--tech-type <type>` | string | No | `sora`, `veo`, `sora_azure`, `sora_h_pro`, `sora_aio` |
-| `--video-scale <scale>` | string | No | `16:9` or `9:16` |
-| `--language <lang>` | string | No | Dialogue language (e.g. `English (American accent)`) |
+| `--tech-type <type>` | string | No | `veo`, `sora`, `sora_azure`, `sora_h_pro` (`sora_aio` deprecated) |
+| `--video-scale <scale>` | string | No | `9:16` (all models), `16:9` (veo only) |
+| `--language <lang>` | string | No | Dialogue language (see language list below) |
 | `--name <name>` | string | No | Video name |
 
 Either `--json` or the combination of `--tech-type`, `--video-scale`, and `--language` is required.
+
+> **Note:** `16:9` videoScale only works with `veo` tech type. Using it with sora/sora_azure/sora_h_pro will error: `"Video scale '16:9' only works with veo tech type"`.
+> **Note:** `hdEnhancement` only works with sora series (sora, sora_azure, sora_h_pro), NOT with veo.
 
 **JSON body fields:**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `techType` | string | Yes | AI model type |
-| `videoScale` | string | Yes | Aspect ratio |
-| `dialogueLanguage` | string | Yes | Dialogue language |
-| `showTitle` | boolean | No | Show title overlay |
-| `showSubtitle` | boolean | No | Show subtitles |
-| `noBgmMusic` | boolean | No | Disable background music |
-| `hdEnhancement` | boolean | No | Enable HD enhancement |
+| `techType` | string | **Yes** | AI model: `veo`, `sora`, `sora_azure`, `sora_h_pro` (`sora_aio` deprecated, may not work) |
+| `videoScale` | string | **Yes** | `9:16` (all models), `16:9` (veo only) |
+| `dialogueLanguage` | string | **Yes** | Dialogue language (see language list below) |
+| `showTitle` | boolean | **Yes** | Show title overlay |
+| `showSubtitle` | boolean | **Yes** | Show subtitles |
+| `noBgmMusic` | boolean | **Yes** | Disable background music |
+| `hdEnhancement` | boolean | **Yes** | Enable HD enhancement (sora series only, NOT veo) |
+| `fragmentList` | array | **Yes** | List of video fragments (at least 1) |
+| `fragmentList[].videoContent` | string | **Yes** | Scene description |
+| `fragmentList[].segmentCount` | number | **Yes** | Segments per fragment: VEO 1-4, SORA must be 1 |
+| `fragmentList[].spliceMethod` | string | **Yes** | `SPLICE` or `LONG_TAKE` (SORA does NOT support `LONG_TAKE`) |
+| `fragmentList[].useCoverFrame` | boolean | No | Use cover frame (SORA does NOT support `true`) |
 | `name` | string | No | Video name |
-| `fragmentList` | array | Yes | List of video fragments |
-| `fragmentList[].videoContent` | string | Yes | Scene description |
-| `fragmentList[].segmentCount` | number | Yes | Number of segments |
-| `fragmentList[].spliceMethod` | string | Yes | `SPLICE` |
-| `fragmentList[].useCoverFrame` | boolean | No | Use cover frame |
+| `generatedQuantity` | number | No | Number of videos to generate |
+| `labelIds` | string[] | No | Label IDs for categorization |
+| `fragmentList[].positivePrompt` | string | No | Positive prompt for visual style |
+| `fragmentList[].negativePrompt` | string | No | Negative prompt to exclude elements |
+| `fragmentList[].productReferenceImages` | string[] | No | Product reference image URLs (VEO max 3, SORA max 1) |
+| `fragmentList[].nineGridImages` | string[] | No | Nine-grid images (max 9; SORA requires both or neither with productReferenceImages) |
+| `fragmentList[].portraitImages` | string[] | No | Portrait images (VEO only, max 1; SORA not supported) |
+| `fragmentList[].productReferenceDescription` | string | No | Product reference description |
+| `fragmentList[].contentLib` | string[] | No | Content library names |
+| `bgmList` | array | No | Background music list `[{name, url, duration}]` |
+| `titleStyleConfig` | object | No | Title style `{fontFamily, fontSize, color, offset}` |
+| `subtitleStyleConfig` | object | No | Subtitle style (same structure as titleStyleConfig) |
+| `globalControl` | string | No | Global control/description prompt |
+| `headVideo` | string | No | Intro video URL |
+| `endVideo` | string | No | Outro video URL |
+
+### Dialogue Language Options
+
+**VEO supported languages (15):**
+
+`English (American accent)`, `Mandarin`, `French`, `Spanish`, `Arabic`, `Japanese`, `Korean`, `Malay`, `Indonesian`, `Vietnamese`, `German`, `Italian`, `Russian`, `Thai`, `Portuguese`
+
+**SORA series supported languages (19, includes all VEO languages plus 4 additional):**
+
+`English (American accent)`, `English (British accent)`, `English (Indian accent)`, `Mandarin`, `Cantonese`, `Mandarin (Northeastern accent)`, `Mandarin (Taiwan accent)`, `French`, `Spanish`, `Arabic`, `Japanese`, `Korean`, `Malay`, `Indonesian`, `Vietnamese`, `German`, `Italian`, `Russian`, `Thai`, `Portuguese`
+
+### Model Constraints
+
+| Constraint | VEO | SORA / sora_azure / sora_h_pro |
+|------------|-----|-------------------------------|
+| videoScale `16:9` | Y | Not supported |
+| videoScale `9:16` | Y | Y |
+| hdEnhancement | Not supported | Y |
+| segmentCount | 1-4 | Must be 1 |
+| spliceMethod `LONG_TAKE` | Y (when segmentCount > 1) | Not supported |
+| useCoverFrame `true` | Y | Not supported |
+| portraitImages | Y (max 1) | Not supported |
+| productReferenceImages | Max 3 per fragment | Max 1 per fragment |
+| showTitle / showSubtitle | Best with English dialogueLanguage | Best with English dialogueLanguage |
+
+### Additional Validation Rules
+
+- **Max fragments:** No more than 10 fragments per video task
+- **SORA nineGridImages:** When `nineGridImages` is provided, `productReferenceImages` is also required (both or neither)
+- **VEO LONG_TAKE:** VEO does not support `LONG_TAKE` when `segmentCount` is 1 (use `segmentCount` > 1 with `LONG_TAKE`)
+- **useCoverFrame + portraitImages:** When `videoScale` is `9:16` and fragment has `portraitImages`, `useCoverFrame` must be `true`
+- **productAnchorTitle:** Max 30 characters
 
 **Example:**
 
@@ -51,7 +101,8 @@ beervid-api video create --json '{"techType":"veo","videoScale":"9:16","dialogue
 
 ```json
 {
-  "taskId": "task_7f3a9b2c1d4e"
+  "taskIds": ["019d0e21-xxxx-xxxx-xxxx-xxxxxxxxxxxx"],
+  "message": "Video creation tasks submitted successfully"
 }
 ```
 
@@ -73,7 +124,7 @@ beervid-api video tasks [--current <page>] [--size <size>] [--status <status>]
 |--------|------|---------|-------------|
 | `--current <page>` | number | — | Page number |
 | `--size <size>` | number | — | Page size |
-| `--status <status>` | number | — | `0`=pending, `1`=processing, `2`=done |
+| `--status <status>` | number | — | `0`=failed, `1`=succeeded, `2`=generating |
 
 **Example:**
 
@@ -116,7 +167,7 @@ List videos in the library.
 **Syntax:**
 
 ```bash
-beervid-api video library [--current <page>] [--size <size>] [--name <name>] [--source-type <type>] [--task-mode <mode>]
+beervid-api video library [--current <page>] [--size <size>] [--name <name>] [--source-type <type>] [--task-mode <mode>] [--audit-status <status>] [--task-ids <ids>] [--strategy-ids <ids>] [--business-ids <ids>] [--label-ids <ids>] [--date-range <start> <end>]
 ```
 
 **Options:**
@@ -127,7 +178,13 @@ beervid-api video library [--current <page>] [--size <size>] [--name <name>] [--
 | `--size <size>` | number | `20` | Page size |
 | `--name <name>` | string | — | Filter by name |
 | `--source-type <type>` | string | — | `VIDEO_GENERATION` or `STRATEGY` |
-| `--task-mode <mode>` | string | — | `smart` or `expert` |
+| `--task-mode <mode>` | string | — | `smart` (smart creation) or `expert` (multi-fragment) |
+| `--audit-status <status>` | number | — | `0`=not reviewed, `1`=approved, `2`=rejected, `3`=reviewing |
+| `--task-ids <ids>` | string | — | Filter by video creation task IDs (comma-separated) |
+| `--strategy-ids <ids>` | string | — | Filter by strategy IDs (comma-separated) |
+| `--business-ids <ids>` | string | — | Filter by TikTok account IDs (comma-separated) |
+| `--label-ids <ids>` | string | — | Filter by label IDs (comma-separated) |
+| `--date-range <start> <end>` | string | — | Creation time range (ISO 8601) |
 
 **Example:**
 
@@ -179,10 +236,10 @@ beervid-api video publish --video-id <id> --business-id <id> [--product-anchor] 
 
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
-| `--video-id <id>` | string | Yes | Video ID from library |
-| `--business-id <id>` | string | Yes | TikTok business account ID |
+| `--video-id <id>` | string | **Yes** | Video ID from library |
+| `--business-id <id>` | string | **Yes** | TikTok business account ID |
 | `--product-anchor` | boolean | No | Enable product anchor |
-| `--product-id <id>` | string | No | Product ID for anchor |
+| `--product-id <id>` | string | Conditional | Required when `--product-anchor` is set |
 | `--product-anchor-title <title>` | string | No | Product anchor title |
 
 **Example:**
@@ -198,8 +255,9 @@ beervid-api video publish --video-id vid_a1b2c3d4e5f6 --business-id biz_x9y8z7 -
 
 ```json
 {
-  "success": true,
-  "publishId": "pub_m1n2o3p4"
+  "shareId": "v_pub_url~v2.xxxx",
+  "status": "PUBLISHED",
+  "message": "视频发布成功"
 }
 ```
 
@@ -219,13 +277,21 @@ beervid-api video upload <file> [--file-type <type>]
 
 | Argument | Type | Required | Description |
 |----------|------|----------|-------------|
-| `<file>` | string | Yes | Path to file |
+| `<file>` | string | **Yes** | Path to file |
 
 **Options:**
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `--file-type <type>` | string | — | `video`, `image`, or `audio` |
+
+**File type constraints:**
+
+| Type | Formats | Max Size |
+|------|---------|----------|
+| `video` | `.mp4`, `.mov` | 10 MB |
+| `image` | `.jpg`, `.jpeg`, `.png` | 7 MB |
+| `audio` | `.mp3`, `.wav` | 5 MB |
 
 **Example:**
 
