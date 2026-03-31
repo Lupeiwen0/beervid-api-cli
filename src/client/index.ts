@@ -4,7 +4,7 @@ import { loadConfig } from '../config.js'
 import type {
   OpenApiResponse, ProfileResult, CheckResult, FileUploadResult,
   VideoCreateParams, VideoTasksParams, VideoTaskItem, PaginatedResult,
-  VideoLibraryParams, VideoLibraryItem, VideoPublishParams,
+  VideoLibraryParams, VideoLibraryItem, VideoPublishParams, VideoPublishResult,
   StrategyCreateParams, StrategyCreateResult, StrategyListParams, StrategyListItem,
   StrategyDetailResult, AccountListParams, AccountItem,
   TemplateOption, TemplateDetail, LabelItem,
@@ -139,7 +139,7 @@ export async function uploadFile(filePath: string, fileType?: string): Promise<F
 }
 
 // Video
-export const createVideo = (params: VideoCreateParams) => apiPost<null>('/api/v1/beervid/video-create', params)
+export const createVideo = (params: VideoCreateParams) => apiPost<unknown>('/api/v1/beervid/video-create', params)
 
 export function getVideoTasks(params?: VideoTasksParams): Promise<PaginatedResult<VideoTaskItem>> {
   const query: Record<string, string> = {}
@@ -153,7 +153,7 @@ export const listVideoLibrary = (params: VideoLibraryParams) =>
   apiPost<PaginatedResult<VideoLibraryItem>>('/api/v1/beervid/videos/library/list', params)
 
 export const publishVideo = (params: VideoPublishParams) =>
-  apiPost<Record<string, never>>('/api/v1/beervid/videos/library/publish', params)
+  apiPost<VideoPublishResult>('/api/v1/beervid/videos/library/publish', params)
 
 // Strategy
 export const createStrategy = (params: StrategyCreateParams) =>

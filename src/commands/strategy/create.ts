@@ -25,7 +25,7 @@ export function register(cmd: Command): void {
         const params = parseJsonInput(opts.json)
         log.info('Creating strategy...')
         const result = await createStrategy(params)
-        printResult(result)
+        printResult({ id: result.id })
       } catch (err) {
         handleCommandError(err)
       }

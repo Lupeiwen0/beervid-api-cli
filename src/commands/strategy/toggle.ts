@@ -19,8 +19,8 @@ export function register(cmd: Command): void {
         }
         const enable = !!opts.enable
         log.info(`${enable ? 'Enabling' : 'Disabling'} strategy: ${id}`)
-        const result = await toggleStrategy(id, enable)
-        printResult(result)
+        await toggleStrategy(id, enable)
+        printResult({ success: true })
       } catch (err) {
         handleCommandError(err)
       }

@@ -11,7 +11,16 @@ export function register(cmd: Command): void {
       try {
         log.info(`Fetching analytics for video: ${id}`)
         const result = await getVideoAnalytics(id)
-        printResult(result)
+        if (result === null || result === undefined) {
+          printResult({
+            videoId: id,
+            error: true,
+            message: 'No analytics data found. The video may not exist, may not be published, or the ID may be invalid.'
+          })
+          process.exit(1)
+        } else {
+          printResult(result)
+        }
       } catch (err) {
         handleCommandError(err)
       }

@@ -20,7 +20,7 @@ export interface PaginatedResult<T> {
 
 // ─── Enums / Union types ──────────────────────────────────────────────
 
-export type TechType = 'sora' | 'veo' | 'sora_azure' | 'sora_h_pro' | 'sora_aio'
+export type TechType = 'sora' | 'veo' | 'sora_azure' | 'sora_h_pro'
 export type VideoScale = '16:9' | '9:16'
 export type TaskStatus = 0 | 1 | 2
 export type PublishRecordStatus = 0 | 1 | 2 | 3
@@ -181,6 +181,12 @@ export interface VideoPublishParams {
     productId: string
     productAnchorTitle?: string
   }
+}
+
+export interface VideoPublishResult {
+  shareId: string
+  status: string
+  message: string
 }
 
 // ─── Strategy ─────────────────────────────────────────────────────────

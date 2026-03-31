@@ -4,6 +4,10 @@ export function setQuiet(value: boolean): void {
   quiet = value
 }
 
+export function isQuietMode(): boolean {
+  return quiet
+}
+
 export const log = {
   info(msg: string): void {
     if (!quiet) process.stderr.write(`[INFO] ${msg}\n`)

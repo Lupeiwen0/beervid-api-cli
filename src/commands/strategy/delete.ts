@@ -10,8 +10,8 @@ export function register(cmd: Command): void {
     .action(async (id: string) => {
       try {
         log.info(`Deleting strategy: ${id}`)
-        const result = await deleteStrategy(id)
-        printResult(result)
+        await deleteStrategy(id)
+        printResult({ success: true })
       } catch (err) {
         handleCommandError(err)
       }

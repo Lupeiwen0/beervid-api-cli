@@ -1,4 +1,5 @@
 import { ApiError } from './client/index.js'
+import { isQuietMode } from './logger.js'
 import { log } from './logger.js'
 
 interface CliCommandErrorOptions {
@@ -36,6 +37,15 @@ export function formatCommandError(error: unknown): string[] {
 }
 
 export function handleCommandError(error: unknown): never {
+  // In quiet mode, output structured JSON error to stdout for parseability
+  if (isQuietMode()) {
+    const jsonError = error instanceof ApiError
+      ? { error: true, code: (error as any).code, message: error.message }
+      : { error: true, message: error instanceof Error ? error.message : String(error) }
+    console.log(JSON.stringify(jsonError))
+    process.exit(1)
+  }
+
   for (const line of formatCommandError(error)) {
     log.error(line)
   }
